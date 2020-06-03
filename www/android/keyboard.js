@@ -37,6 +37,12 @@ Keyboard.fireOnShowing = function (height) {
     });
 };
 
+Keyboard.fireOnChanging = function (height) {
+    cordova.fireWindowEvent('keyboardHeightWillChange', {
+        'keyboardHeight': height
+    });
+};
+
 Keyboard.hideFormAccessoryBar = Keyboard.hideKeyboardAccessoryBar = function (hide) {
     console.warn("Keyboard.hideKeyboardAccessoryBar() not supported in Android");
 };
@@ -68,6 +74,7 @@ channel.onCordovaReady.subscribe(function () {
         var action = msg.charAt(0);
         if (action === 'S') {
             var keyboardHeight = parseInt(msg.substr(1));
+            Keyboard.fireOnChanging(keyboardHeight);
             Keyboard.fireOnShowing(keyboardHeight);
             Keyboard.fireOnShow(keyboardHeight);
 

@@ -207,6 +207,18 @@ window.addEventListener('keyboardWillShow', (event) => {
 });
 ```
 
+### keyboardHeightWillChange
+
+> This event fires when keyboard height changes.
+Attach handler to this event to be able to receive notification when keyboard is changing height.
+
+```js
+window.addEventListener('keyboardHeightWillChange', (event) => {
+    // Describe your logic which will be run each time when keyboard height changes.
+    console.log(event.keyboardHeight);
+});
+```
+
 ### keyboardWillHide
 
 > This event fires before keyboard will be closed.
