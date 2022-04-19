@@ -267,6 +267,12 @@ NSString* UITraitsClassString;
         return UIKeyboardAppearanceLight;
     });
 
+    if ([style isEqualToString:@"dark"]) {
+        self.webView.superview.backgroundColor = UIColor.blackColor;
+    } else {
+        self.webView.superview.backgroundColor = UIColor.whiteColor;
+    }
+
     if (self.isWK) {
         for (NSString* classString in @[WKClassString, UITraitsClassString]) {
             Class c = NSClassFromString(classString);
