@@ -21,6 +21,7 @@
 #import <Cordova/CDVAvailability.h>
 #import <Cordova/NSDictionary+CordovaPreferences.h>
 #import <objc/runtime.h>
+#import <WebKit/WebKit.h>
 
 typedef enum : NSUInteger {
     ResizeNone,
@@ -106,6 +107,7 @@ NSString* UITraitsClassString;
     [nc addObserver:self selector:@selector(onKeyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
     [nc addObserver:self selector:@selector(onKeyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [nc addObserver:self selector:@selector(onKeyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+    [nc addObserver:self selector:@selector(onKeyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
 
     // Prevent WKWebView to resize window
     BOOL isWK = self.isWK = [self.webView isKindOfClass:NSClassFromString(@"WKWebView")];
@@ -187,6 +189,36 @@ NSString* UITraitsClassString;
 {
     [self.commandDelegate evalJs:@"Keyboard.fireOnHide();"];
     [self resetScrollView];
+}
+
+- (void)onKeyboardWillChangeFrame:(NSNotification *)note
+{
+    UIView *webView = self.webView;
+    if (!webView.window) {
+        return;
+    }
+
+    CGRect end = [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGRect endInView = [webView convertRect:end fromView:nil];
+    CGFloat bottom = CGRectGetMaxY(webView.bounds);
+
+    // Floating and undocked keyboards don't reach the bottom edge, so they cover nothing.
+    double overlap = 0;
+    if (!CGRectIsEmpty(end) && CGRectGetMaxY(endInView) >= bottom - 1) {
+        overlap = MAX(0, bottom - CGRectGetMinY(endInView));
+    }
+
+    double duration = [[note.userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    NSInteger curve = [[note.userInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    NSString *js = [NSString stringWithFormat:@"window.Keyboard && Keyboard.fireOnFrameChanging(%d, %f, %ld);",
+                    (int)round(overlap), duration, (long)curve];
+
+    // Called directly rather than through the command delegate, to keep the page in step with the keyboard.
+    if (self.isWK) {
+        [(WKWebView *)webView evaluateJavaScript:js completionHandler:nil];
+    } else {
+        [self.commandDelegate evalJs:js];
+    }
 }
 
 - (void)setKeyboardHeight:(int)height delay:(NSTimeInterval)delay

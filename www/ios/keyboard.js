@@ -63,6 +63,14 @@ Keyboard.fireOnChanging = function (height) {
     });
 };
 
+Keyboard.fireOnFrameChanging = function (height, duration, curve) {
+    cordova.fireWindowEvent('keyboardFrameWillChange', {
+        'keyboardHeight': height,
+        'duration': duration,
+        'curve': curve
+    });
+};
+
 Keyboard.fireOnResize = function (height, screenHeight, ele) {
     if (!ele) {
         return;
@@ -105,5 +113,6 @@ Keyboard.setKeyboardStyle = function(style) {
 };
 
 Keyboard.isVisible = false;
+Keyboard.supportsFrameEvents = true;
 
 module.exports = Keyboard;

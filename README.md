@@ -167,6 +167,17 @@ if (Keyboard.isVisible) {
 }
 ```
 
+### Keyboard.supportsFrameEvents (for iOS only)
+
+> Whether the `keyboardFrameWillChange` event is available.
+
+```js
+if (Keyboard.supportsFrameEvents) {
+    Keyboard.setResizeMode('none');
+    window.addEventListener('keyboardFrameWillChange', handleKeyboardFrame);
+}
+```
+
 ## Events
 
 ### keyboardDidHide
@@ -216,6 +227,18 @@ Attach handler to this event to be able to receive notification when keyboard is
 window.addEventListener('keyboardHeightWillChange', (event) => {
     // Describe your logic which will be run each time when keyboard height changes.
     console.log(event.keyboardHeight);
+});
+```
+
+### keyboardFrameWillChange (for iOS only)
+
+> This event fires each time the keyboard's frame is about to change: showing, hiding, or changing height.
+
+`keyboardHeight` is how many CSS pixels of the web view the keyboard's end frame covers, `0` when hidden, floating, or when a hardware keyboard is attached. `duration` is the animation duration in seconds and `curve` is the `UIViewAnimationCurve`. The web view itself is not resized in `none` resize mode, so this is the event to animate your own layout with.
+
+```js
+window.addEventListener('keyboardFrameWillChange', (event) => {
+    console.log(event.keyboardHeight, event.duration, event.curve);
 });
 ```
 
