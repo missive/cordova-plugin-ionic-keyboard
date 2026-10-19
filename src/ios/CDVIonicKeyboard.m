@@ -139,6 +139,8 @@ NSString* UITraitsClassString;
 
 - (void)onKeyboardWillHide:(NSNotification *)sender
 {
+    [self fireOnFrameChanging:0 note:sender];
+
     if (self.isWK) {
         [self setKeyboardHeight:0 delay:0.01];
         [self resetScrollView];
@@ -206,6 +208,16 @@ NSString* UITraitsClassString;
     double overlap = 0;
     if (!CGRectIsEmpty(end) && CGRectGetMaxY(endInView) >= bottom - 1) {
         overlap = MAX(0, bottom - CGRectGetMinY(endInView));
+    }
+
+    [self fireOnFrameChanging:overlap note:note];
+}
+
+- (void)fireOnFrameChanging:(double)overlap note:(NSNotification *)note
+{
+    UIView *webView = self.webView;
+    if (!webView.window) {
+        return;
     }
 
     double duration = [[note.userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
