@@ -43,6 +43,15 @@ Keyboard.fireOnChanging = function (height) {
     });
 };
 
+Keyboard.fireOnFrameChanging = function (height, duration, easing, startTime) {
+    cordova.fireWindowEvent('keyboardFrameWillChange', {
+        'keyboardHeight': height,
+        'duration': duration,
+        'easing': easing,
+        'startTime': startTime
+    });
+};
+
 Keyboard.hideFormAccessoryBar = Keyboard.hideKeyboardAccessoryBar = function (hide) {
     console.warn("Keyboard.hideKeyboardAccessoryBar() not supported in Android");
 };
@@ -60,7 +69,7 @@ Keyboard.disableScroll = function (disable) {
 };
 
 Keyboard.setResizeMode = function (mode) {
-    console.warn("Keyboard.setResizeMode() not supported in Android");
+    exec(null, null, "CDVIonicKeyboard", "setResizeMode", [mode]);
 }
 
 Keyboard.setKeyboardStyle = function(style) {
@@ -87,5 +96,7 @@ channel.onCordovaReady.subscribe(function () {
 
 
 Keyboard.isVisible = false;
+// Matches the native side, which only reports the keyboard's frame from Android 11.
+Keyboard.supportsFrameEvents = Number((/Android (\d+)/.exec(navigator.userAgent) || [])[1]) >= 11;
 
 module.exports = Keyboard;

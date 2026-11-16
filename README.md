@@ -120,11 +120,11 @@ Call this method to show the keyboard.
 Keyboard.show();
 ```
 
-### Keyboard.setResizeMode (for iOS only)
+### Keyboard.setResizeMode
 
 > Programmatically set the resize mode
 
-Call the method with parameter to set the resize mode.
+Call the method with parameter to set the resize mode. Android only tells `none`, which stops the keyboard from resizing the web view, from any other value, which restores the platform's own resizing.
 
 ```js
 // Possible values are the same as for 'KeyboardResizeMode' preference
@@ -167,9 +167,9 @@ if (Keyboard.isVisible) {
 }
 ```
 
-### Keyboard.supportsFrameEvents (for iOS only)
+### Keyboard.supportsFrameEvents
 
-> Whether the `keyboardFrameWillChange` event is available.
+> Whether the `keyboardFrameWillChange` event is available. On Android, that is Android 11 and later: before that the system resizes the window for the keyboard itself.
 
 ```js
 if (Keyboard.supportsFrameEvents) {
@@ -230,15 +230,17 @@ window.addEventListener('keyboardHeightWillChange', (event) => {
 });
 ```
 
-### keyboardFrameWillChange (for iOS only)
+### keyboardFrameWillChange
 
 > This event fires each time the keyboard's frame is about to change: showing, hiding, or changing height.
 
-`keyboardHeight` is how many CSS pixels of the web view the keyboard's end frame covers, `0` when hidden, floating, or when a hardware keyboard is attached. `duration` is the animation duration in seconds and `curve` is the `UIViewAnimationCurve`. The web view itself is not resized in `none` resize mode, so this is the event to animate your own layout with.
+`keyboardHeight` is how many CSS pixels of the web view the keyboard's end frame covers, `0` when hidden, floating, or when a hardware keyboard is attached. `duration` is the animation duration in seconds, `0` when the change isn't animated. The web view itself is not resized in `none` resize mode, so this is the event to animate your own layout with.
+
+On iOS, `curve` is the `UIViewAnimationCurve`. On Android, `easing` samples the keyboard's animation curve at evenly spaced points in time, from start to end, or is `null` when the change isn't animated. `startTime` is when the animation started, in milliseconds since the epoch like `Date.now()`, so a page that receives the event late can skip what the keyboard already played. A keyboard dismissed by a gesture follows the finger, so it's reported once the gesture ends, with a `0` duration.
 
 ```js
 window.addEventListener('keyboardFrameWillChange', (event) => {
-    console.log(event.keyboardHeight, event.duration, event.curve);
+    console.log(event.keyboardHeight, event.duration, event.curve, event.easing, event.startTime);
 });
 ```
 
